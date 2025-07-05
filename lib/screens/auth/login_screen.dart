@@ -59,6 +59,82 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // NEW: Function to handle the password reset logic
+  Future<void> _passwordReset() async {
+    // Controller for the dialog's text field
+    final TextEditingController resetEmailController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Reset Password'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                  'Enter your email and we will send you a password reset link.'),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: resetEmailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email_outlined),
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final email = resetEmailController.text.trim();
+                if (email.isNotEmpty) {
+                  try {
+                    await FirebaseAuth.instance
+                        .sendPasswordResetEmail(email: email);
+
+                    // Close the dialog
+                    if (mounted) Navigator.of(context).pop();
+
+                    // Show success message
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Password reset link sent! Check your email.'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  } on FirebaseAuthException catch (e) {
+                    // Close the dialog
+                    if (mounted) Navigator.of(context).pop();
+
+                    // Show error message
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(e.message ?? 'An error occurred.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                }
+              },
+              child: const Text('Send Link'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -134,8 +210,27 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: true,
                 validator: _validatePassword,
               ),
+
+              // NEW: Added Forgot Password button
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _passwordReset,
+                    child: Text(
+                      'Forgot Password?',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // END of new button
+
               const SizedBox(
-                height: 30,
+                height: 10, // Adjusted spacing
               ),
               if (_isLoading)
                 const Center(

@@ -12,9 +12,6 @@ import 'services/notification_service.dart';
 import 'services/settings_manager.dart';
 import 'utils/app_constants.dart';
 
-// ===================================================================
-// إعدادات الإشعارات في الخلفية (يجب أن تكون هنا في ملف main.dart)
-// ===================================================================
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(

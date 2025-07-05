@@ -15,13 +15,9 @@ class BeehiveDetailScreen extends StatelessWidget {
 
   Future<void> _toggleDoor(String hiveId, bool currentIsDoorOpen) async {
     final dbRef = FirebaseDatabase.instance.ref(
-      'beehives/$hiveId/data',
+      'beehives/$hiveId/info/doorRequested',
     );
-    await dbRef.update(
-      {
-        'door': currentIsDoorOpen ? 'closed' : 'open',
-      },
-    );
+    await dbRef.set(currentIsDoorOpen ? 'closed' : 'open');
   }
 
   Future<void> _setDoorControlMode(String hiveId, String mode) async {
@@ -34,6 +30,83 @@ class BeehiveDetailScreen extends StatelessWidget {
       },
     );
   }
+
+  // NEW: Function to update the camera URL in Firebase
+  Future<void> _updateCameraUrl(String hiveId, String newUrl) async {
+    final dbRef = FirebaseDatabase.instance.ref('beehives/$hiveId/info');
+    try {
+      await dbRef.update({'cameraUrl': newUrl});
+    } catch (e) {
+      // Handle potential errors, e.g., permission denied
+      print('Error updating camera URL: $e');
+    }
+  }
+
+  // NEW: Function to show a dialog for editing the camera URL
+  Future<void> _showEditCameraUrlDialog(
+      BuildContext context, String hiveId, String currentUrl) async {
+    final urlController = TextEditingController(text: currentUrl);
+    final formKey = GlobalKey<FormState>();
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Edit Camera Stream URL'),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: urlController,
+              decoration: const InputDecoration(
+                labelText: 'New URL',
+                hintText: 'http://your-stream-url',
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'URL cannot be empty';
+                }
+                if (!Uri.parse(value.trim()).isAbsolute) {
+                  return 'Please enter a valid URL';
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+            ElevatedButton(
+              child: const Text('Save'),
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  final newUrl = urlController.text.trim();
+                  await _updateCameraUrl(hiveId, newUrl);
+
+                  // Close the dialog
+                  if (dialogContext.mounted) Navigator.of(dialogContext).pop();
+
+                  // Show a confirmation message
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Camera URL updated successfully!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   Widget _buildInfoRow(BuildContext context, IconData icon, String label, String value,
       {Color? valueColor}) {
@@ -112,6 +185,20 @@ class BeehiveDetailScreen extends StatelessWidget {
               updatedBeehive.name,
             ),
             actions: [
+              // NEW: Edit Camera URL Button
+              if (updatedBeehive.hasCamera)
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined),
+                  tooltip: 'Edit Camera URL',
+                  onPressed: () {
+                    _showEditCameraUrlDialog(
+                      context,
+                      updatedBeehive.id,
+                      updatedBeehive.cameraUrl,
+                    );
+                  },
+                ),
+              // Existing Open Camera Button
               if (updatedBeehive.hasCamera)
                 IconButton(
                   icon: const Icon(

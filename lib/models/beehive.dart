@@ -37,6 +37,9 @@ class Beehive {
     final data = Map<String, dynamic>.from(
       map['data'] ?? {},
     );
+
+    print("📷 cameraUrl from Firebase = ${data['cameraUrl']}");
+
     return Beehive(
       id: snapshot.key!,
       name: info['name'] ?? 'Unnamed Beehive',
@@ -47,12 +50,12 @@ class Beehive {
       currentWeight: (data['weight_kg'] ?? 0.0).toDouble(),
       temperature: (data['temp'] ?? 0.0).toDouble(),
       humidity: (data['hum'] ?? 0.0).toDouble(),
-      isDoorOpen: (data['door'] ?? 'closed') == 'open',
+      isDoorOpen: (info['doorState'] ?? 'closed') == 'open',
       alert: data['alert'] ?? false,
       reason: data['reason'] ?? 'Status OK',
       latitude: (data['lat'] ?? 0.0).toDouble(),
       longitude: (data['lng'] ?? 0.0).toDouble(),
-      cameraUrl: data['cameraUrl'] ?? '',
+      cameraUrl: (data['cameraUrl'] ?? '').toString(),
     );
   }
 
