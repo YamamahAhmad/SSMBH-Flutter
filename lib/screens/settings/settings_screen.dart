@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'account_security_settings_screen.dart';
 import 'display_settings_screen.dart';
 import 'notifications_screen.dart';
+import 'package:project1/screens/settings/notifications_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({
@@ -38,7 +39,7 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const NotificationsScreen(),
+                builder: (context) => const NotificationScreen(),
               ),
             ),
           ),

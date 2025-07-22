@@ -38,7 +38,7 @@ class Beehive {
       map['data'] ?? {},
     );
 
-    print("📷 cameraUrl from Firebase = ${data['cameraUrl']}");
+    print("📷 cameraUrl from Firebase = ${info['cameraUrl']}");
 
     return Beehive(
       id: snapshot.key!,
@@ -55,7 +55,7 @@ class Beehive {
       reason: data['reason'] ?? 'Status OK',
       latitude: (data['lat'] ?? 0.0).toDouble(),
       longitude: (data['lng'] ?? 0.0).toDouble(),
-      cameraUrl: (data['cameraUrl'] ?? '').toString(),
+      cameraUrl: info['cameraUrl'] as String? ?? '',
     );
   }
 

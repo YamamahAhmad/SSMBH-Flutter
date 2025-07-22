@@ -1,3 +1,5 @@
+// lib/main.dart
+
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,21 +8,39 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // للوصول للإعدادات في الخلفية
+import 'package:project1/providers/settings_provider.dart';
+// الـ Provider الذي أنشأناه
+
 import 'firebase_options.dart';
 import 'screens/auth/auth_gate.dart';
 import 'services/notification_service.dart';
 import 'services/settings_manager.dart';
 import 'utils/app_constants.dart';
 
+// --- 2. تعديل معالج الخلفية ليتوافق مع إعدادات التشغيل/الإيقاف ---
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  if (kDebugMode) {
-    print(
-      "--- Handling a background message: ${message.messageId}",
-    );
+
+  // التحقق من حالة الإشعارات قبل فعل أي شيء
+  final prefs = await SharedPreferences.getInstance();
+  final bool notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+
+  if (notificationsEnabled) {
+    if (kDebugMode) {
+      print("--- Background notifications are ON. Handling message: ${message.messageId}");
+    }
+    // هنا يمكنك إضافة منطق إضافي إذا أردت معالجة الإشعار في الخلفية
+    // حالياً، نظام FCM سيعرض الإشعار بنفسه
+  } else {
+    if (kDebugMode) {
+      print("--- Background notifications are OFF. Ignoring message.");
+    }
+    // لا تفعل شيئاً لأن المستخدم أوقف الإشعارات
   }
 }
 
@@ -59,8 +79,15 @@ void main() async {
   FirebaseDatabase.instance.databaseURL =
   "https://fir-be497-default-rtdb.europe-west1.firebasedatabase.app";
 
+  // --- 3. تعديل runApp لاستخدام MultiProvider ---
   runApp(
-    const MyApp(),
+    MultiProvider(
+      providers: [
+        // هنا نضيف الـ Provider الجديد ليكون متاحاً في كل التطبيق
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+      ],
+      child: const MyApp(),
+    ),
   );
 }
 
@@ -116,6 +143,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         }
         RemoteNotification? notification = message.notification;
         if (notification != null && message.notification?.android != null) {
+          // لا حاجة لأي تعديل هنا، لأن التحقق أصبح داخل الدالة نفسها
           NotificationService.showLocalNotification(
             id: notification.hashCode,
             title: notification.title ?? 'No Title',
@@ -199,6 +227,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   ThemeData _buildLightTheme() {
+    // ... (هذا الجزء يبقى كما هو بدون تغيير)
     return ThemeData(
       brightness: Brightness.light,
       primarySwatch: Colors.amber,
@@ -306,6 +335,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   ThemeData _buildDarkTheme() {
+    // ... (هذا الجزء يبقى كما هو بدون تغيير)
     return ThemeData.dark().copyWith(
       brightness: Brightness.dark,
       primaryColor: primaryYellow,
