@@ -51,6 +51,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
   rename: ^3.0.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -101,3 +102,15 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+
+flutter_launcher_icons:
+  android: "launcher_icon"    # اسم أيقونة الأندرويد
+  ios: true                   # هل تريد إنشاء أيقونة للـ iOS؟ نعم
+  image_path: "assets/logo.png" # مسار الشعار الذي صممته
+  min_sdk_android: 21         # الحد الأدنى لإصدار أندرويد (مهم للأيقونات الجديدة)
+
+  # (اختياري لكن موصى به بشدة للأندرويد) للأيقونات المتكيفة Adaptive Icons
+  adaptive_icon_background: "#FFFFFF" # لون خلفية الأيقونة (استخدم كود لون الهيكس)
+  adaptive_icon_foreground: "assets/logo.png" # يمكنك استخدام نفس الشعار أو نسخة أصغر منه
+

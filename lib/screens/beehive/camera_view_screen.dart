@@ -35,7 +35,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
         ]),
         // هذا الخيار يحسن من استقرار البث عبر الشبكة
         advanced: VlcAdvancedOptions([
-          VlcAdvancedOptions.networkCaching(1500),
+          VlcAdvancedOptions.networkCaching(300),
         ]),
       ),
     );
@@ -81,22 +81,13 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
         // نستخدم الشرط الثلاثي (ternary operator) هنا
         // إذا كان المشغل جاهزاً، اعرض الفيديو.
         // وإلا، اعرض مؤشر تحميل ورسالة للمستخدم.
-        child: _isPlayerReady
-            ? VlcPlayer(
-          controller: _videoPlayerController,
-          aspectRatio: 16 / 9,
-          placeholder: const Center(child: CircularProgressIndicator()),
-        )
-            : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text("Connecting to camera stream..."),
-            SizedBox(height: 8),
-            Text("(This might take a few seconds)", style: TextStyle(color: Colors.grey)),
-          ],
-        ),
+          child: VlcPlayer(
+            controller: _videoPlayerController,
+            aspectRatio: 16 / 9,
+            placeholder: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
       ),
     );
   }

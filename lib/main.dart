@@ -1,5 +1,3 @@
-// lib/main.dart
-
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // للوصول للإعدادات في الخلفية
 import 'package:project1/providers/settings_provider.dart';
-// الـ Provider الذي أنشأناه
 
 import 'firebase_options.dart';
 import 'screens/auth/auth_gate.dart';
@@ -19,14 +16,12 @@ import 'services/notification_service.dart';
 import 'services/settings_manager.dart';
 import 'utils/app_constants.dart';
 
-// --- 2. تعديل معالج الخلفية ليتوافق مع إعدادات التشغيل/الإيقاف ---
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // التحقق من حالة الإشعارات قبل فعل أي شيء
   final prefs = await SharedPreferences.getInstance();
   final bool notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
 
@@ -34,13 +29,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     if (kDebugMode) {
       print("--- Background notifications are ON. Handling message: ${message.messageId}");
     }
-    // هنا يمكنك إضافة منطق إضافي إذا أردت معالجة الإشعار في الخلفية
-    // حالياً، نظام FCM سيعرض الإشعار بنفسه
+
   } else {
     if (kDebugMode) {
       print("--- Background notifications are OFF. Ignoring message.");
     }
-    // لا تفعل شيئاً لأن المستخدم أوقف الإشعارات
   }
 }
 
